@@ -1,4 +1,4 @@
-function [] = pargif(result,n_range,varname,dim,opt,delay,par)
+function [] = pargif(result,n_range,varname,dim,opt,delay,par,userlabel,useraxis,usertitle)
 
 persistent figure_tmp
 nvars = size(varname,2);
@@ -12,15 +12,49 @@ end
 
 for i = 1:nvars
     figure_tmp = figure;
+    j = n_range(1);
 
     hold on
     mat_tmp = result(par).(varname(i));
     surf(mat_tmp(:,:,n_range(1)))
     view(dim(i))
     hold off
+
+    if ~isempty(useraxis(i,:))
+        axis(useraxis(i,:))
+    end
+
+    if ~isempty(userlabel(i,:))
+        xlabel(userlabel(i,1))
+        ylabel(userlabel(i,2))
+        zlabel(userlabel(i,3))
+        xl = xlabel;
+        yl = ylabel;
+        zl = zlabel;
+    else
+        xl = [];
+        yl = [];
+        zl = [];
+    end
+
     aa = axis;
     drawnow
-    title(append(varname(i),' at t = ',num2str(result(1).dt*n_range(1)*1e6,'%.2f'),' us'))
+    
+    try
+        title_tmp = cell2mat(usertitle(i));
+    catch
+        try
+            title_tmp = usertitle(i);
+        catch
+            title_tmp = [];
+        end
+    end
+    
+    if isa(title_tmp,'function_handle')
+        title(title_tmp(i,j,varname,n_range,result))
+    else
+        title(title_tmp)
+    end
 
     frame = getframe(figure_tmp);
     im = frame2im(frame);
@@ -37,7 +71,17 @@ for i = 1:nvars
         axis(aa)
         hold off
         drawnow
-        title(append(varname(i),' at t = ',num2str(result(1).dt*j*1e6,'%.2f'),' us'))
+
+        if isa(title_tmp,'function_handle')
+            title(title_tmp(i,j,varname,n_range,result))
+        else
+            title(title_tmp)
+        end
+
+        xlabel(xl)
+        ylabel(yl)
+        zlabel(zl)
+
         frame = getframe(figure_tmp);
         im = frame2im(frame);
         [imind,cm] = rgb2ind(im,256);
