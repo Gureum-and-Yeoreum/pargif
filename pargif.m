@@ -28,13 +28,6 @@ for i = 1:nvars
         xlabel(userlabel(i,1))
         ylabel(userlabel(i,2))
         zlabel(userlabel(i,3))
-        xl = xlabel;
-        yl = ylabel;
-        zl = zlabel;
-    else
-        xl = [];
-        yl = [];
-        zl = [];
     end
 
     aa = axis;
@@ -78,9 +71,11 @@ for i = 1:nvars
             title(title_tmp)
         end
 
-        xlabel(xl)
-        ylabel(yl)
-        zlabel(zl)
+        if ~isempty(userlabel(i,:))
+            xlabel(userlabel(i,1))
+            ylabel(userlabel(i,2))
+            zlabel(userlabel(i,3))
+        end
 
         frame = getframe(figure_tmp);
         im = frame2im(frame);
